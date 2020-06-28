@@ -34,6 +34,8 @@ export default class StreamWindow extends EventEmitter {
       backgroundColor: this.backgroundColor,
       useContentSize: true,
       show: false,
+      // vs2020.06.26 remove the window frame/chrome
+      // frame:false,
     })
     win.removeMenu()
     win.loadURL('about:blank')
@@ -41,7 +43,9 @@ export default class StreamWindow extends EventEmitter {
     // Work around https://github.com/electron/electron/issues/14308
     // via https://github.com/lutzroeder/netron/commit/910ce67395130690ad76382c094999a4f5b51e92
     win.once('ready-to-show', () => {
-      win.resizable = false
+      // vs2020.06.26 let user resize window, view needs to be responsive, currently not
+      // win.resizable = false
+      win.resizable = true
       win.show()
     })
     this.win = win
