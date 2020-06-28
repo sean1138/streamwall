@@ -1,15 +1,21 @@
 @font-face {
-  font-family: 'Noto Sans';
-  font-weight: normal;
-  src: url(./static/NotoSans-Regular.ttf) format('truetype');
+	font-family:'Noto Sans';
+	font-weight: normal;
+	src: url(./static/NotoSans-Regular.ttf) format('truetype');
 }
-
 @font-face {
-  font-family: 'Noto Sans';
-  font-weight: 600;
-  src: url(./static/NotoSans-SemiBold.ttf) format('truetype');
+	font-family:'Noto Sans';
+	font-weight: 600;
+	src: url(./static/NotoSans-SemiBold.ttf) format('truetype');
+}
+body {
+	font-family:'Noto Sans';
 }
 
-body {
-  font-family: 'Noto Sans';
+[class*="overlay__StreamTitle"] {
+	color:green;
+}
+[class*="overlay__SpaceBorder"] {
+	/*background-color:red;*/
+	border-color:yellow !important;
 }

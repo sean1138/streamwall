@@ -8,6 +8,7 @@ import styled, { css } from 'styled-components'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import '../index.css'
+import testcss from './control.css'
 import { GRID_COUNT } from '../constants'
 import SoundIcon from '../static/volume-up-solid.svg'
 import NoVideoIcon from '../static/video-slash-solid.svg'
@@ -192,6 +193,7 @@ function App({ wsEndpoint }) {
 
   return (
     <div>
+    <testcss />
       <h1>Streamwall ({location.host})</h1>
       <div>
         connection status: {isConnected ? 'connected' : 'connecting...'}
@@ -474,7 +476,7 @@ const StyledGridButtons = styled.div`
   display: flex;
   position: absolute;
   bottom: 0;
-  ${({ side }) => (side === 'left' ? 'left: 0' : 'right: 0')};
+
 
   ${StyledButton} {
     margin: 5px;
