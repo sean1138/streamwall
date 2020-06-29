@@ -424,7 +424,6 @@ function GridInput({
       />
       <StyledGridButtons>
       {isDisplaying && (
-        // error if remove duped child StyledGridButtons elem, not really needed otherwise? vs2020.06.29
         <StyledGridButtons>
           <StyledSmallButton onClick={handleReloadClick} tabIndex={1} title="reload stream">
             <ReloadIcon />
