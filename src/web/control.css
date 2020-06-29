@@ -114,15 +114,10 @@ summary {
 	white-space: nowrap;
 	text-overflow:ellipsis;
 }
-
 .StreamLine-text:hover{
 	background:#EEE;
 	max-width:unset;
 	overflow:unset;
 	max-height:unset;
 	white-space: unset;
-}
-.StreamLine-text:hover::before,
-.StreamLine-text:hover::after{
-	display:none;
 }
