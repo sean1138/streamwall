@@ -13,9 +13,9 @@ body {
 }
 
 [class*="overlay__StreamTitle"] {
-	color:green;
+	/*color:green !important;*/
 }
 [class*="overlay__SpaceBorder"] {
 	/*background-color:red;*/
-	border-color:yellow !important;
+	/*border-color:yellow !important;*/
 }

@@ -343,7 +343,7 @@ function StreamLine({
   return (
     <StyledStreamLine>
       <StyledId onClick={handleClickId}>{id}</StyledId>
-      <div>
+      <div class="StreamLine-text">
         {label ? (
           label
         ) : (
@@ -352,7 +352,7 @@ function StreamLine({
             <a href={link} target="_blank">
               {title || link}
             </a>{' '}
-            {notes}
+            <span>{notes}</span>
           </>
         )}
       </div>
@@ -413,35 +413,6 @@ function GridInput({
   })
   return (
     <StyledGridContainer>
-      {isDisplaying && (
-        <StyledGridButtons side="left">
-          <StyledSmallButton onClick={handleReloadClick} tabIndex={1}>
-            <ReloadIcon />
-          </StyledSmallButton>
-          <StyledSmallButton onClick={handleBrowseClick} tabIndex={1}>
-            <WindowIcon />
-          </StyledSmallButton>
-          <StyledSmallButton onClick={handleDevToolsClick} tabIndex={1}>
-            <LifeRingIcon />
-          </StyledSmallButton>
-        </StyledGridButtons>
-      )}
-      <StyledGridButtons side="right">
-        <StyledToggleButton
-          isActive={isBlurred}
-          onClick={handleBlurClick}
-          tabIndex={1}
-        >
-          <NoVideoIcon />
-        </StyledToggleButton>
-        <StyledToggleButton
-          isActive={isListening}
-          onClick={handleListeningClick}
-          tabIndex={1}
-        >
-          <SoundIcon />
-        </StyledToggleButton>
-      </StyledGridButtons>
       <StyledGridInput
         name={idx}
         value={editingValue || spaceValue || ''}
@@ -451,6 +422,38 @@ function GridInput({
         onClick={handleClick}
         onChange={handleChange}
       />
+      <StyledGridButtons>
+      {isDisplaying && (
+        // error if remove duped child StyledGridButtons elem, not really needed otherwise? vs2020.06.29
+        <StyledGridButtons>
+          <StyledSmallButton onClick={handleReloadClick} tabIndex={1} title="reload stream">
+            <ReloadIcon />
+          </StyledSmallButton>
+          <StyledSmallButton onClick={handleBrowseClick} tabIndex={1} title="view stream in new window">
+            <WindowIcon />
+          </StyledSmallButton>
+          <StyledSmallButton onClick={handleDevToolsClick} tabIndex={1} title="inspect stream element">
+            <LifeRingIcon />
+          </StyledSmallButton>
+        </StyledGridButtons>
+      )}
+        <StyledToggleButton
+          isActive={isBlurred}
+          onClick={handleBlurClick}
+          tabIndex={1}
+          title="toggle blur"
+        >
+          <NoVideoIcon />
+        </StyledToggleButton>
+        <StyledToggleButton
+          isActive={isListening}
+          onClick={handleListeningClick}
+          tabIndex={1}
+          title="toggle audio"
+        >
+          <SoundIcon />
+        </StyledToggleButton>
+      </StyledGridButtons>
     </StyledGridContainer>
   )
 }
@@ -514,7 +517,7 @@ const StyledGridLine = styled.div`
 `
 
 const StyledButton = styled.button`
-  display: flex;
+  // display: flex;
   align-items: center;
   border: 2px solid gray;
   border-color: gray;
@@ -533,6 +536,7 @@ const StyledButton = styled.button`
 `
 
 const StyledSmallButton = styled(StyledButton)`
+  height: 18px;
   svg {
     width: 14px;
     height: 14px;
@@ -549,13 +553,13 @@ const StyledToggleButton = styled(StyledButton)`
 `
 
 const StyledGridContainer = styled.div`
-  position: relative;
+  // position: relative;
 `
 
 const StyledGridButtons = styled.div`
-  display: flex;
-  position: absolute;
-  bottom: 0;
+  // display: flex;
+  // position: absolute;
+  // bottom: 0;
 
 
   ${StyledButton} {
@@ -565,8 +569,8 @@ const StyledGridButtons = styled.div`
 `
 
 const StyledGridInput = styled.input`
-  width: 160px;
-  height: 50px;
+  width: 100%;
+  // height: 100px;
   padding: 20px;
   border: 2px solid ${({ isError }) => (isError ? 'red' : 'black')};
   font-size: 20px;
