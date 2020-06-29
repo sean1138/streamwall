@@ -514,11 +514,11 @@ const StyledGridLine = styled.div`
 `
 
 const StyledButton = styled.button`
-  // moved styles to control.css vs2020.06.29
+  // moved styles to index.css vs2020.06.29
 `
 
 const StyledSmallButton = styled(StyledButton)`
-  // moved styles to control.css vs2020.06.29
+  // moved styles to index.css vs2020.06.29
 `
 
 const StyledToggleButton = styled(StyledButton)`
@@ -531,11 +531,11 @@ const StyledToggleButton = styled(StyledButton)`
 `
 
 const StyledGridContainer = styled.div`
-  // moved styles to control.css vs2020.06.29
+  // moved styles to index.css vs2020.06.29
 `
 
 const StyledGridButtons = styled.div`
-  // moved styles to control.css vs2020.06.29
+  // moved styles to index.css vs2020.06.29
   // ${StyledButton} {
   //   ${({ side }) => (side === 'left' ? 'margin-right: 0' : 'margin-left: 0')};
   // }
@@ -546,11 +546,11 @@ const StyledGridInput = styled.input`
 `
 
 const StyledId = styled.div`
-  // moved styles to control.css vs2020.06.29
+  // moved styles to index.css vs2020.06.29
 `
 
 const StyledStreamLine = styled.div`
-  // moved styles to control.css vs2020.06.29
+  // moved styles to index.css vs2020.06.29
 `
 
 function main() {
