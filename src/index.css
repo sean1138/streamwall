@@ -111,7 +111,7 @@ body {
 	/*border:1px solid green;*/
 	background:#444;
 	display: flex;
-	justify-content: end;
+	justify-content: flex-end;
 }
 [class*="control__StyledGridButtons"] >[class*="control__StyledGridButtons"] {
 	flex-wrap: wrap;
