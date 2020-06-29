@@ -87,6 +87,58 @@ summary {
 [class*="control__StyledGridButtons"] >[class*="control__StyledGridButtons"] {
 	flex-wrap: wrap;
 }
+[class*="control__StyledGridInput"] {
+	width: 100%;
+	/*height: 100px;*/
+	padding: 20px;
+	/*border: see conytol.js;*/
+	font-size: 20px;
+	text-align: center;
+}
+[class*="control__StyledGridInput"]:focus {
+	outline: none;
+	box-shadow: 0 0 5px orange inset;
+}
+[class*="control__StyledButton"] {
+	/*display: flex;*/
+	align-items: center;
+	margin: 5px;
+	border: 2px solid gray;
+	border-color: gray;
+	background: #ccc;
+	border-radius: 5px;
+}
+[class*="control__StyledButton"]:focus {
+	outline: none;
+	box-shadow: 0 0 10px orange inset;
+}
+[class*="control__StyledButton"] svg {
+	width: 20px;
+	height: 20px;
+}
+[class*="control__StyledSmallButton"] {
+	height: 18px;
+}
+[class*="control__StyledSmallButton"] svg {
+	width: 14px;
+	height: 14px;
+}
+[class*="control__StyledId"] {
+	flex-shrink: 0;
+	margin-right: 5px;
+	background: #333;
+	color: white;
+	padding: 3px;
+	border-radius: 5px;
+	width: 3em;
+	text-align: center;
+	cursor: pointer;
+}
+[class*="control__StyledStreamLine"] {
+	display: flex;
+	align-items: center;
+	margin: 0.5em 0;
+}
 .StreamLine-text {
 	position: relative;
 	/*max-width: 15em;*/

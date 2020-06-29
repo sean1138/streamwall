@@ -224,7 +224,6 @@ function App({ wsEndpoint }) {
 
   return (
     <div>
-    <testcss />
       <h1>Streamwall ({location.host})</h1>
       <div>
         connection status: {isConnected ? 'connected' : 'connecting...'}
@@ -516,30 +515,11 @@ const StyledGridLine = styled.div`
 `
 
 const StyledButton = styled.button`
-  // display: flex;
-  align-items: center;
-  border: 2px solid gray;
-  border-color: gray;
-  background: #ccc;
-  border-radius: 5px;
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 10px orange inset;
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
+  // moved styles to control.css vs2020.06.29
 `
 
 const StyledSmallButton = styled(StyledButton)`
-  height: 18px;
-  svg {
-    width: 14px;
-    height: 14px;
-  }
+  // moved styles to control.css vs2020.06.29
 `
 
 const StyledToggleButton = styled(StyledButton)`
@@ -552,51 +532,26 @@ const StyledToggleButton = styled(StyledButton)`
 `
 
 const StyledGridContainer = styled.div`
-  // position: relative;
+  // moved styles to control.css vs2020.06.29
 `
 
 const StyledGridButtons = styled.div`
-  // display: flex;
-  // position: absolute;
-  // bottom: 0;
-
-
-  ${StyledButton} {
-    margin: 5px;
-    ${({ side }) => (side === 'left' ? 'margin-right: 0' : 'margin-left: 0')};
-  }
+  // moved styles to control.css vs2020.06.29
+  // ${StyledButton} {
+  //   ${({ side }) => (side === 'left' ? 'margin-right: 0' : 'margin-left: 0')};
+  // }
 `
 
 const StyledGridInput = styled.input`
-  width: 100%;
-  // height: 100px;
-  padding: 20px;
   border: 2px solid ${({ isError }) => (isError ? 'red' : 'black')};
-  font-size: 20px;
-  text-align: center;
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 5px orange inset;
-  }
 `
 
 const StyledId = styled.div`
-  flex-shrink: 0;
-  margin-right: 5px;
-  background: #333;
-  color: white;
-  padding: 3px;
-  border-radius: 5px;
-  width: 3em;
-  text-align: center;
-  cursor: pointer;
+  // moved styles to control.css vs2020.06.29
 `
 
 const StyledStreamLine = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 0.5em 0;
+  // moved styles to control.css vs2020.06.29
 `
 
 function main() {
