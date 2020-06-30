@@ -103,7 +103,7 @@ summary {
 /******* START fancy toggle*/
 /*for crop/nocrop cover/contain setting for individual streams*/
  .switch {
-	position: absolute;
+	position: relative;
 	/*margin: 20px auto;*/
 	height: 26px;
 	width: 120px;
