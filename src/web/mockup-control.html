@@ -25,9 +25,15 @@
 <body>
 	<div>
 		<h1>Streamwall (localhost:4444)</h1>
+		<!-- datalist polyfill info: https://github.com/thgreasi/datalist-polyfill -->
 		<p>Grid Size:
-			<input class="num-3w" type="number" min="3" max="30" step="1" size="3">&nbsp;&#10005;&nbsp;
-			<input class="num-3w" type="number" min="3" max="30" step="1" size="3">
+			<input class="num-3w" type="text" list="grid-size" placeholder="3x3" value="3x3" autocomplete="off" />
+			<datalist name="" id="grid-size">
+				<option value="3x3">3&#10005;3</option>
+				<option value="3x4">3&#10005;4</option>
+				<option value="4x3">4&#10005;3</option>
+				<option value="4x4">4&#10005;4</option>
+			</datalist>
 		</p>
 
 		<div>connection status: connected</div>
