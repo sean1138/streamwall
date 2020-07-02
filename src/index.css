@@ -1,8 +1,6 @@
 /*** START normalize - mostly from html5boilerplate's normalize */
  *, *::before, *::after {
 	box-sizing: inherit;
-	/*margin: 0;
-	padding: 0;*/
 }
 html {
 	box-sizing: border-box;
@@ -85,6 +83,7 @@ summary {
 	font-weight: 600;
 	src: url(./static/NotoSans-SemiBold.ttf) format('truetype');
 }
+
 /*** START Streamwall window */
 [class*="overlay__StreamTitle"] {
 	/*color:green !important;*/
@@ -97,10 +96,9 @@ summary {
 
 /*** START controls view/page */
  .num-3w {
- 	/*for grid size number inputs*/
+	/*for grid size number inputs*/
 	width:calc(3em + 10px);
 }
-
 [class*="control__StyledGridContainer"] {
 	position: relative;
 	/*border:1px solid red;*/
@@ -108,7 +106,7 @@ summary {
 }
 [class*="control__StyledGridButtons"] {
 	/*border:1px solid green;*/
-	background:#444;
+	background:hsla(0, 0%, 27%, 1);
 	display: flex;
 	justify-content: flex-end;
 }
@@ -125,20 +123,22 @@ summary {
 }
 [class*="control__StyledGridInput"]:focus {
 	outline: none;
-	box-shadow: 0 0 5px orange inset;
+	box-shadow: 0 0 5px hsla(39, 100%, 50%, 1) inset;
 }
 [class*="control__StyledButton"] {
 	/*display: flex;*/
 	align-items: center;
 	margin: 2px;
-	border: 2px solid gray;
-	border-color: gray;
-	background: #ccc;
+	border: 2px solid hsla(0, 0%, 50%, 1);
+	;
+	border-color: hsla(0, 0%, 50%, 1);
+	;
+	background: hsla(0, 0%, 80%, 1);
 	border-radius: 5px;
 }
 [class*="control__StyledButton"]:focus {
 	outline: none;
-	box-shadow: 0 0 10px orange inset;
+	box-shadow: 0 0 10px hsla(39, 100%, 50%, 1) inset;
 }
 [class*="control__StyledButton"] svg {
 	width: 20px;
@@ -154,8 +154,8 @@ summary {
 [class*="control__StyledId"] {
 	flex-shrink: 0;
 	margin-right: 5px;
-	background: #333;
-	color: white;
+	background: hsla(0, 0%, 20%, 1);
+	color: hsla(0, 100%, 100%, 1);
 	padding: 3px;
 	border-radius: 5px;
 	width: 3em;
@@ -176,7 +176,7 @@ summary {
 	text-overflow:ellipsis;
 }
 .StreamLine-text:hover {
-	background:#EEE;
+	background:hsla(0, 0%, 93%, 1);
 	max-width:unset;
 	overflow:unset;
 	max-height:unset;
