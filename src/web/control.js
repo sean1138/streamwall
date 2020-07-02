@@ -1,5 +1,6 @@
 import range from 'lodash/range'
 import sortBy from 'lodash/sortBy'
+import truncate from 'lodash/truncate'
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import { h, Fragment, render } from 'preact'
 import { useEffect, useState, useCallback, useRef } from 'preact/hooks'
@@ -8,22 +9,47 @@ import styled, { css } from 'styled-components'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import '../index.css'
-import testcss from './control.css'
-import { GRID_COUNT } from '../constants'
 import SoundIcon from '../static/volume-up-solid.svg'
 import NoVideoIcon from '../static/video-slash-solid.svg'
 import ReloadIcon from '../static/redo-alt-solid.svg'
 import LifeRingIcon from '../static/life-ring-regular.svg'
 import WindowIcon from '../static/window-maximize-regular.svg'
 
+const hotkeyTriggers = [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '0',
+  'q',
+  'w',
+  'e',
+  'r',
+  't',
+  'y',
+  'u',
+  'i',
+  'o',
+  'p',
+]
+
 function App({ wsEndpoint }) {
   const wsRef = useRef()
   const [isConnected, setIsConnected] = useState(false)
+  const [config, setConfig] = useState({})
   const [streams, setStreams] = useState([])
   const [customStreams, setCustomStreams] = useState([])
   const [stateIdxMap, setStateIdxMap] = useState(new Map())
-  const [delayState, setDelayState] = useState(false)
-  const allStreams = sortBy([...streams, ...customStreams], ['_id'])
+  const [delayState, setDelayState] = useState({
+    isConnected: false,
+  })
+
+  const { gridCount } = config
 
   useEffect(() => {
     const ws = new ReconnectingWebSocket(wsEndpoint, [], {
@@ -37,16 +63,15 @@ function App({ wsEndpoint }) {
       const msg = JSON.parse(ev.data)
       if (msg.type === 'state') {
         const {
+          config: newConfig,
           streams: newStreams,
           views,
-          customStreams: newCustomStreams,
           streamdelay,
         } = msg.state
         const newStateIdxMap = new Map()
-        const allStreams = [...newStreams, ...newCustomStreams]
         for (const viewState of views) {
           const { pos, content } = viewState.context
-          const stream = allStreams.find((d) => d.link === content.url)
+          const stream = newStreams.find((d) => d.link === content.url)
           const streamId = stream?._id
           const state = State.from(viewState.state)
           const isListening = state.matches(
@@ -66,11 +91,12 @@ function App({ wsEndpoint }) {
             })
           }
         }
+        setConfig(newConfig)
         setStateIdxMap(newStateIdxMap)
-        setStreams(newStreams)
-        setCustomStreams(newCustomStreams)
+        setStreams(sortBy(newStreams, ['_id']))
+        setCustomStreams(newStreams.filter((s) => s._dataSource === 'custom'))
         setDelayState(
-          streamdelay && {
+          streamdelay.isConnected && {
             ...streamdelay,
             state: State.from(streamdelay.state),
           },
@@ -85,9 +111,7 @@ function App({ wsEndpoint }) {
   const handleSetView = useCallback(
     (idx, streamId) => {
       const newSpaceIdxMap = new Map(stateIdxMap)
-      const stream = [...streams, ...customStreams].find(
-        (d) => d._id === streamId,
-      )
+      const stream = streams.find((d) => d._id === streamId)
       if (stream) {
         const content = {
           url: stream?.link,
@@ -107,7 +131,7 @@ function App({ wsEndpoint }) {
       ])
       wsRef.current.send(JSON.stringify({ type: 'set-views', views }))
     },
-    [streams, customStreams, stateIdxMap],
+    [streams, stateIdxMap],
   )
 
   const handleSetListening = useCallback((idx, listening) => {
@@ -156,20 +180,23 @@ function App({ wsEndpoint }) {
     )
   }, [])
 
-  const handleClickId = useCallback((streamId) => {
-    const availableIdx = range(GRID_COUNT * GRID_COUNT).find(
-      (i) => !stateIdxMap.has(i),
-    )
-    if (availableIdx === undefined) {
-      return
-    }
-    handleSetView(availableIdx, streamId)
-  })
+  const handleClickId = useCallback(
+    (streamId) => {
+      const availableIdx = range(gridCount * gridCount).find(
+        (i) => !stateIdxMap.has(i),
+      )
+      if (availableIdx === undefined) {
+        return
+      }
+      handleSetView(availableIdx, streamId)
+    },
+    [gridCount, stateIdxMap],
+  )
 
   const handleChangeCustomStream = useCallback((idx, customStream) => {
     let newCustomStreams = [...customStreams]
     newCustomStreams[idx] = customStream
-    newCustomStreams = newCustomStreams.filter((s) => s.kind)
+    newCustomStreams = newCustomStreams.filter((s) => s.label || s.link)
     wsRef.current.send(
       JSON.stringify({
         type: 'set-custom-streams',
@@ -188,25 +215,26 @@ function App({ wsEndpoint }) {
   }, [])
 
   // Set up keyboard shortcuts.
-  // Note: if GRID_COUNT > 3, there will not be keys for view indices > 9.
-  for (const idx of range(GRID_COUNT * GRID_COUNT)) {
-    useHotkeys(
-      `alt+${idx + 1}`,
-      () => {
-        const isListening = stateIdxMap.get(idx)?.isListening ?? false
-        handleSetListening(idx, !isListening)
-      },
-      [stateIdxMap],
-    )
-    useHotkeys(
-      `alt+shift+${idx + 1}`,
-      () => {
-        const isBlurred = stateIdxMap.get(idx)?.isBlurred ?? false
-        handleSetBlurred(idx, !isBlurred)
-      },
-      [stateIdxMap],
-    )
-  }
+  useHotkeys(
+    hotkeyTriggers.map((k) => `alt+${k}`).join(','),
+    (ev, { key }) => {
+      ev.preventDefault()
+      const idx = hotkeyTriggers.indexOf(key[key.length - 1])
+      const isListening = stateIdxMap.get(idx)?.isListening ?? false
+      handleSetListening(idx, !isListening)
+    },
+    [stateIdxMap],
+  )
+  useHotkeys(
+    hotkeyTriggers.map((k) => `alt+shift+${k}`).join(','),
+    (ev, { key }) => {
+      ev.preventDefault()
+      const idx = hotkeyTriggers.indexOf(key[key.length - 1])
+      const isBlurred = stateIdxMap.get(idx)?.isBlurred ?? false
+      handleSetBlurred(idx, !isBlurred)
+    },
+    [stateIdxMap],
+  )
   useHotkeys(
     `alt+c`,
     () => {
@@ -229,18 +257,16 @@ function App({ wsEndpoint }) {
       <div>
         connection status: {isConnected ? 'connected' : 'connecting...'}
       </div>
-      {delayState !== false && (
-        <StreamDelayBox
-          delayState={delayState}
-          setStreamCensored={setStreamCensored}
-        />
-      )}
+      <StreamDelayBox
+        delayState={delayState}
+        setStreamCensored={setStreamCensored}
+      />
       <StyledDataContainer isConnected={isConnected}>
         <div>
-          {range(0, GRID_COUNT).map((y) => (
+          {range(0, gridCount).map((y) => (
             <StyledGridLine>
-              {range(0, GRID_COUNT).map((x) => {
-                const idx = GRID_COUNT * y + x
+              {range(0, gridCount).map((x) => {
+                const idx = gridCount * y + x
                 const {
                   streamId = '',
                   isListening = false,
@@ -271,7 +297,7 @@ function App({ wsEndpoint }) {
         </div>
         <div>
           {isConnected
-            ? allStreams.map((row) => (
+            ? streams.map((row) => (
                 <StreamLine id={row._id} row={row} onClickId={handleClickId} />
               ))
             : 'loading...'}
@@ -282,7 +308,7 @@ function App({ wsEndpoint }) {
             Include an empty object at the end to create an extra input for a new custom stream.
             We need it to be part of the array (rather than JSX below) for DOM diffing to match the key and retain focus.
            */}
-          {[...customStreams, { kind: '', label: '', kind: 'video' }].map(
+          {[...customStreams, { link: '', label: '', kind: 'video' }].map(
             ({ link, label, kind }, idx) => (
               <CustomStreamInput
                 key={idx}
@@ -305,12 +331,14 @@ function StreamDelayBox({ delayState, setStreamCensored }) {
     setStreamCensored(!delayState.isCensored)
   }, [delayState.isCensored, setStreamCensored])
   let buttonText
-  if (delayState.state.matches('censorship.censored.deactivating')) {
-    buttonText = 'Deactivating...'
-  } else if (delayState.isCensored) {
-    buttonText = 'Uncensor stream'
-  } else {
-    buttonText = 'Censor stream'
+  if (delayState.isConnected) {
+    if (delayState.state.matches('censorship.censored.deactivating')) {
+      buttonText = 'Deactivating...'
+    } else if (delayState.isCensored) {
+      buttonText = 'Uncensor stream'
+    } else {
+      buttonText = 'Censor stream'
+    }
   }
   return (
     <div>
@@ -318,15 +346,17 @@ function StreamDelayBox({ delayState, setStreamCensored }) {
         <strong>Streamdelay</strong>
         <span>{delayState.isConnected ? 'connected' : 'connecting...'}</span>
         {delayState.isConnected && (
-          <span>delay: {delayState.delaySeconds}s</span>
+          <>
+            <span>delay: {delayState.delaySeconds}s</span>
+            <StyledToggleButton
+              isActive={delayState.isCensored}
+              onClick={handleToggleStreamCensored}
+              tabIndex={1}
+            >
+              {buttonText}
+            </StyledToggleButton>
+          </>
         )}
-        <StyledToggleButton
-          isActive={delayState.isCensored}
-          onClick={handleToggleStreamCensored}
-          tabIndex={1}
-        >
-          {buttonText}
-        </StyledToggleButton>
       </StyledStreamDelayBox>
     </div>
   )
@@ -334,12 +364,16 @@ function StreamDelayBox({ delayState, setStreamCensored }) {
 
 function StreamLine({
   id,
-  row: { label, source, title, link, notes },
+  row: { label, source, title, link, notes, state, city },
   onClickId,
 }) {
   const handleClickId = useCallback(() => {
     onClickId(id)
   })
+  let location
+  if (state && city) {
+    location = ` (${city} ${state}) `
+  }
   return (
     <StyledStreamLine>
       <StyledId onClick={handleClickId}>{id}</StyledId>
@@ -348,9 +382,10 @@ function StreamLine({
           label
         ) : (
           <>
-            <strong>{source}</strong>{' '}
+            <strong>{source}</strong>
+            {location}
             <a href={link} target="_blank">
-              {title || link}
+              {truncate(title || link, { length: 55 })}
             </a>{' '}
             {notes}
           </>

@@ -1,66 +1,141 @@
 import fs from 'fs'
 import yargs from 'yargs'
+import TOML from '@iarna/toml'
+import { Repeater } from '@repeaterjs/repeater'
 import { app, shell, session, BrowserWindow } from 'electron'
 
 import { ensureValidURL } from '../util'
-import { pollPublicData, StreamIDGenerator } from './data'
+import {
+  pollDataURL,
+  watchDataFile,
+  StreamIDGenerator,
+  markDataSource,
+  combineDataSources,
+} from './data'
 import StreamWindow from './StreamWindow'
 import StreamdelayClient from './StreamdelayClient'
 import initWebServer from './server'
 
-async function main() {
-  const argv = yargs
+function parseArgs() {
+  return yargs
     .config('config', (configPath) => {
-      return JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+      return TOML.parse(fs.readFileSync(configPath, 'utf-8'))
+    })
+    .group(['grid.count'], 'Grid dimensions')
+    .option('grid.count', {
+      number: true,
+      default: 3,
     })
     .group(
-      ['webserver', 'cert-dir', 'cert-email', 'hostname', 'port'],
-      'Web Server Configuration',
+      [
+        'window.width',
+        'window.height',
+        'window.x',
+        'window.y',
+        'window.frameless',
+        'window.background-color',
+      ],
+      'Window settings',
     )
-    .option('webserver', {
-      describe: 'Enable control webserver and specify the URL',
-      implies: ['username', 'password'],
-    })
-    .option('hostname', {
-      describe: 'Override hostname the control server listens on',
-    })
-    .option('port', {
-      describe: 'Override port the control server listens on',
+    .option('window.x', {
       number: true,
     })
-    .option('cert-dir', {
-      describe: 'Private directory to store SSL certificate in',
-      implies: ['email'],
+    .option('window.y', {
+      number: true,
     })
-    .option('cert-production', {
-      describe: 'Obtain a real SSL certificate using production servers',
+    .option('window.width', {
+      number: true,
+      default: 1920,
     })
-    .option('email', {
-      describe: 'Email for owner of SSL certificate',
+    .option('window.height', {
+      number: true,
+      default: 1080,
     })
-    .option('username', {
+    .option('window.frameless', {
+      boolean: true,
+      default: false,
+    })
+    .option('window.background-color', {
+      describe: 'Background color of wall (useful for chroma-keying)',
+      default: '#000',
+    })
+    .group(['data.json-url', 'data.toml-file'], 'Datasources')
+    .option('data.json-url', {
+      describe: 'Fetch streams from the specified URL(s)',
+      array: true,
+      default: ['https://woke.net/api/streams.json'],
+    })
+    .option('data.toml-file', {
+      describe: 'Fetch streams from the specified file(s)',
+      normalize: true,
+      array: true,
+      default: [],
+    })
+    .group(
+      [
+        'control.username',
+        'control.password',
+        'control.address',
+        'control.hostname',
+        'control.port',
+        'control.open',
+      ],
+      'Control Webserver',
+    )
+    .option('control.username', {
       describe: 'Web control server username',
     })
-    .option('password', {
+    .option('control.password', {
       describe: 'Web control server password',
     })
-    .option('open', {
+    .option('control.open', {
       describe: 'After launching, open the control website in a browser',
       boolean: true,
       default: true,
     })
-    .option('background-color', {
-      describe: 'Background color of wall (useful for chroma-keying)',
-      default: '#000',
+    .option('control.address', {
+      describe: 'Enable control webserver and specify the URL',
+      implies: ['control.username', 'control.password'],
     })
-    .option('streamdelay-endpoint', {
+    .option('control.hostname', {
+      describe: 'Override hostname the control server listens on',
+    })
+    .option('control.port', {
+      describe: 'Override port the control server listens on',
+      number: true,
+    })
+    .group(
+      ['cert.dir', 'cert.production', 'cert.email'],
+      'Automatic SSL Certificate',
+    )
+    .option('cert.dir', {
+      describe: 'Private directory to store SSL certificate in',
+      implies: ['email'],
+      default: null,
+    })
+    .option('cert.production', {
+      describe: 'Obtain a real SSL certificate using production servers',
+    })
+    .option('cert.email', {
+      describe: 'Email for owner of SSL certificate',
+    })
+    .group(['streamdelay.endpoint', 'streamdelay.key'], 'Streamdelay')
+    .option('streamdelay.endpoint', {
       describe: 'URL of Streamdelay endpoint',
       default: 'http://localhost:8404',
     })
-    .option('streamdelay-key', {
+    .option('streamdelay.key', {
       describe: 'Streamdelay API key',
+      default: null,
     })
     .help().argv
+}
+
+async function main() {
+  const argv = parseArgs()
+  if (argv.help) {
+    return
+  }
 
   // Reject all permission requests from web content.
   session
@@ -70,9 +145,20 @@ async function main() {
     })
 
   const idGen = new StreamIDGenerator()
+  let updateCustomStreams
+  const customStreamData = new Repeater(async (push) => {
+    await push([])
+    updateCustomStreams = push
+  })
 
   const streamWindow = new StreamWindow({
-    backgroundColor: argv.backgroundColor,
+    gridCount: argv.grid.count,
+    width: argv.window.width,
+    height: argv.window.height,
+    x: argv.window.x,
+    y: argv.window.y,
+    frameless: argv.window.frameless,
+    backgroundColor: argv.window['background-color'],
   })
   streamWindow.init()
 
@@ -80,10 +166,15 @@ async function main() {
   let streamdelayClient = null
 
   const clientState = {
+    config: {
+      width: argv.window.width,
+      height: argv.window.height,
+      gridCount: argv.grid.count,
+    },
     streams: [],
     customStreams: [],
     views: [],
-    streamdelay: false,
+    streamdelay: { isConnected: false },
   }
   const getInitialState = () => clientState
   let broadcastState = () => {}
@@ -95,10 +186,7 @@ async function main() {
     } else if (msg.type === 'set-view-blurred') {
       streamWindow.setViewBlurred(msg.viewIdx, msg.blurred)
     } else if (msg.type === 'set-custom-streams') {
-      const customIDGen = new StreamIDGenerator(idGen)
-      clientState.customStreams = customIDGen.process(msg.streams)
-      streamWindow.send('state', clientState)
-      broadcastState(clientState)
+      updateCustomStreams(msg.streams)
     } else if (msg.type === 'reload-view') {
       streamWindow.reloadView(msg.viewIdx)
     } else if (msg.type === 'browse' || msg.type === 'dev-tools') {
@@ -132,28 +220,28 @@ async function main() {
     }
   }
 
-  if (argv.webserver) {
+  if (argv.control.address) {
     ;({ broadcastState } = await initWebServer({
-      certDir: argv.certDir,
-      certProduction: argv.certProduction,
-      email: argv.email,
-      url: argv.webserver,
-      hostname: argv.hostname,
-      port: argv.port,
-      username: argv.username,
-      password: argv.password,
+      certDir: argv.cert.dir,
+      certProduction: argv.cert.production,
+      email: argv.cert.email,
+      url: argv.control.address,
+      hostname: argv.control.hostname,
+      port: argv.control.port,
+      username: argv.control.username,
+      password: argv.control.password,
       getInitialState,
       onMessage,
     }))
-    if (argv.open) {
-      shell.openExternal(argv.webserver)
+    if (argv.control.open) {
+      shell.openExternal(argv.control.address)
     }
   }
 
-  if (argv.streamdelayKey) {
+  if (argv.streamdelay.key) {
     streamdelayClient = new StreamdelayClient({
-      endpoint: argv.streamdelayEndpoint,
-      key: argv.streamdelayKey,
+      endpoint: argv.streamdelay.endpoint,
+      key: argv.streamdelay.key,
     })
     streamdelayClient.on('state', (state) => {
       clientState.streamdelay = state
@@ -168,7 +256,17 @@ async function main() {
     broadcastState(clientState)
   })
 
-  for await (const rawStreams of pollPublicData()) {
+  const dataSources = [
+    ...argv.data['json-url'].map((url) =>
+      markDataSource(pollDataURL(url), 'json-url'),
+    ),
+    ...argv.data['toml-file'].map((path) =>
+      markDataSource(watchDataFile(path), 'toml-file'),
+    ),
+    markDataSource(customStreamData, 'custom'),
+  ]
+
+  for await (const rawStreams of combineDataSources(dataSources)) {
     const streams = idGen.process(rawStreams)
     clientState.streams = streams
     streamWindow.send('state', clientState)
