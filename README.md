@@ -4,7 +4,7 @@
 
 Streamwall makes it easy to compose multiple livestreams into a mosaic, with source attributions and audio control.
 
-![Screenshot of Streamwall displaying a grid of streams](screenshot.png)
+![Screenshot of Streamwall displaying a grid of streams](screenshot-vs.jpg)
 
 ## How it works
 
