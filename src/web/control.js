@@ -447,35 +447,6 @@ function GridInput({
   })
   return (
     <StyledGridContainer>
-      {isDisplaying && (
-        <StyledGridButtons side="left">
-          <StyledSmallButton onClick={handleReloadClick} tabIndex={1}>
-            <ReloadIcon />
-          </StyledSmallButton>
-          <StyledSmallButton onClick={handleBrowseClick} tabIndex={1}>
-            <WindowIcon />
-          </StyledSmallButton>
-          <StyledSmallButton onClick={handleDevToolsClick} tabIndex={1}>
-            <LifeRingIcon />
-          </StyledSmallButton>
-        </StyledGridButtons>
-      )}
-      <StyledGridButtons side="right">
-        <StyledToggleButton
-          isActive={isBlurred}
-          onClick={handleBlurClick}
-          tabIndex={1}
-        >
-          <NoVideoIcon />
-        </StyledToggleButton>
-        <StyledToggleButton
-          isActive={isListening}
-          onClick={handleListeningClick}
-          tabIndex={1}
-        >
-          <SoundIcon />
-        </StyledToggleButton>
-      </StyledGridButtons>
       <StyledGridInput
         name={idx}
         value={editingValue || spaceValue || ''}
@@ -485,6 +456,37 @@ function GridInput({
         onClick={handleClick}
         onChange={handleChange}
       />
+      <StyledGridButtons>
+      {isDisplaying && (
+        <StyledGridButtons side="left">
+          <StyledSmallButton onClick={handleReloadClick} tabIndex={1} title="reload stream">
+            <ReloadIcon />
+          </StyledSmallButton>
+          <StyledSmallButton onClick={handleBrowseClick} tabIndex={1} title="view stream in new window">
+            <WindowIcon />
+          </StyledSmallButton>
+          <StyledSmallButton onClick={handleDevToolsClick} tabIndex={1} title="inspect stream element">
+            <LifeRingIcon />
+          </StyledSmallButton>
+        </StyledGridButtons>
+      )}
+        <StyledToggleButton
+          isActive={isBlurred}
+          onClick={handleBlurClick}
+          tabIndex={1}
+          title="toggle blur"
+        >
+          <NoVideoIcon />
+        </StyledToggleButton>
+        <StyledToggleButton
+          isActive={isListening}
+          onClick={handleListeningClick}
+          tabIndex={1}
+          title="toggle audio"
+        >
+          <SoundIcon />
+        </StyledToggleButton>
+      </StyledGridButtons>
     </StyledGridContainer>
   )
 }
@@ -548,29 +550,11 @@ const StyledGridLine = styled.div`
 `
 
 const StyledButton = styled.button`
-  display: flex;
-  align-items: center;
-  border: 2px solid gray;
-  border-color: gray;
-  background: #ccc;
-  border-radius: 5px;
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 10px orange inset;
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
+// moved to index.css
 `
 
 const StyledSmallButton = styled(StyledButton)`
-  svg {
-    width: 14px;
-    height: 14px;
-  }
+// moved to index.css
 `
 
 const StyledToggleButton = styled(StyledButton)`
@@ -583,51 +567,27 @@ const StyledToggleButton = styled(StyledButton)`
 `
 
 const StyledGridContainer = styled.div`
-  position: relative;
+// moved to index.css
 `
 
 const StyledGridButtons = styled.div`
-  display: flex;
-  position: absolute;
-  bottom: 0;
+// moved to index.css
 
-
-  ${StyledButton} {
-    margin: 5px;
-    ${({ side }) => (side === 'left' ? 'margin-right: 0' : 'margin-left: 0')};
-  }
 `
 
 const StyledGridInput = styled.input`
-  width: 160px;
-  height: 50px;
-  padding: 20px;
+// moved to index.css
   border: 2px solid ${({ isError }) => (isError ? 'red' : 'black')};
-  font-size: 20px;
-  text-align: center;
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 5px orange inset;
-  }
 `
 
 const StyledId = styled.div`
-  flex-shrink: 0;
-  margin-right: 5px;
-  background: #333;
-  color: white;
-  padding: 3px;
-  border-radius: 5px;
-  width: 3em;
-  text-align: center;
-  cursor: pointer;
+// moved to index.css
+
 `
 
 const StyledStreamLine = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 0.5em 0;
+// moved to index.css
+
 `
 
 function main() {
