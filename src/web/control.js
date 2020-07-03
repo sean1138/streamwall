@@ -376,7 +376,7 @@ function StreamLine({
   return (
     <StyledStreamLine>
       <StyledId onClick={handleClickId}>{id}</StyledId>
-      <div>
+      <div class="StreamLine-text">
         {label ? (
           label
         ) : (
