@@ -152,7 +152,8 @@ async function main() {
   })
 
   const streamWindow = new StreamWindow({
-    gridCount: argv.grid.count,
+    gridCountW: argv.grid.countW,
+    gridCountH: argv.grid.countH,
     width: argv.window.width,
     height: argv.window.height,
     x: argv.window.x,
@@ -169,7 +170,8 @@ async function main() {
     config: {
       width: argv.window.width,
       height: argv.window.height,
-      gridCount: argv.grid.count,
+      gridCountW: argv.grid.countW,
+      gridCountH: argv.grid.countH,
     },
     streams: [],
     customStreams: [],

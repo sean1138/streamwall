@@ -11,9 +11,9 @@ export default class StreamWindow extends EventEmitter {
   constructor(config) {
     super()
 
-    const { width, height, gridCount } = config
-    config.spaceWidth = Math.floor(width / gridCount)
-    config.spaceHeight = Math.floor(height / gridCount)
+    const { width, height, gridCountW, gridCountH } = config
+    config.spaceWidth = Math.floor(width / gridCountW)
+    config.spaceHeight = Math.floor(height / gridCountH)
     this.config = config
 
     this.win = null
@@ -150,9 +150,9 @@ export default class StreamWindow extends EventEmitter {
   }
 
   setViews(viewContentMap) {
-    const { gridCount, spaceWidth, spaceHeight } = this.config
+    const { gridCountW, gridCountH, spaceWidth, spaceHeight } = this.config
     const { win, views } = this
-    const boxes = boxesFromViewContentMap(gridCount, gridCount, viewContentMap)
+    const boxes = boxesFromViewContentMap(gridCountW, gridCountH, viewContentMap)
     const remainingBoxes = new Set(boxes)
     const unusedViews = new Set(views)
     const viewsToDisplay = []

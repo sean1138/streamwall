@@ -49,7 +49,8 @@ function App({ wsEndpoint }) {
     isConnected: false,
   })
 
-  const { gridCount } = config
+  const { gridCountW } = config
+  const { gridCountH } = config
 
   useEffect(() => {
     const ws = new ReconnectingWebSocket(wsEndpoint, [], {
@@ -182,7 +183,7 @@ function App({ wsEndpoint }) {
 
   const handleClickId = useCallback(
     (streamId) => {
-      const availableIdx = range(gridCount * gridCount).find(
+      const availableIdx = range(gridCountW * gridCountH).find(
         (i) => !stateIdxMap.has(i),
       )
       if (availableIdx === undefined) {
@@ -190,7 +191,7 @@ function App({ wsEndpoint }) {
       }
       handleSetView(availableIdx, streamId)
     },
-    [gridCount, stateIdxMap],
+    [gridCountW, gridCountH, stateIdxMap],
   )
 
   const handleChangeCustomStream = useCallback((idx, customStream) => {
@@ -263,10 +264,10 @@ function App({ wsEndpoint }) {
       />
       <StyledDataContainer isConnected={isConnected}>
         <div>
-          {range(0, gridCount).map((y) => (
+          {range(0, gridCountH).map((y) => (
             <StyledGridLine>
-              {range(0, gridCount).map((x) => {
-                const idx = gridCount * y + x
+              {range(0, gridCountW).map((x) => {
+                const idx = gridCountW * gridCountH
                 const {
                   streamId = '',
                   isListening = false,
